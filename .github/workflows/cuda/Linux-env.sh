@@ -5,7 +5,7 @@ case ${1} in
     export CUDA_HOME=/usr/local/cuda-13.0
     export LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}
     export PATH=${CUDA_HOME}/bin:${PATH}
-    export TORCH_CUDA_ARCH_LIST="7.5;8.0;8.6;9.0;9.0a"
+    export TORCH_CUDA_ARCH_LIST="7.5"
     ;;
   cu129)
     export CUDA_HOME=/usr/local/cuda-12.9

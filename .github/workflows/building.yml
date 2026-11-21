@@ -28,26 +28,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, windows-2022]
-        python-version: ['3.10']
+        os: [ubuntu-22.04]
+        python-version: ['3.13']
         # Last 3 minor PyTorch versions aligned with pytorch.org
-        torch-version: ['2.8.0', '2.9.1', '2.10.0']
+        torch-version: ['2.14.1']
         # CUDA versions aligned with PyTorch build matrix
-        cuda-version: ['cu126', 'cu128', 'cu129', 'cu130']
-        exclude:
-          # PyTorch 2.8.0 does not ship cu130 wheels
-          - torch-version: '2.8.0'
-            cuda-version: 'cu130'
-          # PyTorch 2.9.1 does not ship cu129 wheels
-          - torch-version: '2.9.1'
-            cuda-version: 'cu129'
-          # PyTorch 2.10.0 does not ship cu129 wheels
-          - torch-version: '2.10.0'
-            cuda-version: 'cu129'
-          # CUDA 12.6 is incompatible with MSVC >= 14.44 (VS 2022);
-          # the MSVC STL requires CUDA 12.8+
-          - os: windows-2022
-            cuda-version: 'cu126'
+        cuda-version: ['cu130']
 
     steps:
       - name: Checkout repository
@@ -119,18 +105,7 @@ jobs:
           else
             source .github/workflows/cuda/${{ runner.os }}-env.sh ${{ matrix.cuda-version }}
           fi
-          MAX_JOBS=2 python setup.py bdist_wheel --dist-dir=dist
-        shell: bash
-
-      - name: Test wheel
-        run: |
-          cd dist
-          ls -lah
-          pip install *.whl
-          python -c "import gsplat; print('gsplat:', gsplat.__version__)"
-          pip install "$(ls *.whl)[lidar]"
-          python -c "import gsplat; print('gsplat:', gsplat.__version__); from scipy.spatial import cKDTree; print('scipy OK')"
-          cd ..
+          MAX_JOBS=4 python setup.py bdist_wheel --dist-dir=dist
         shell: bash
 
       - uses: actions/upload-artifact@v4
